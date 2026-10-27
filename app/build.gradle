@@ -1,7 +1,14 @@
 plugins { id 'com.android.application' }
+
+def releaseKeystorePath = System.getenv('ANDROID_KEYSTORE_PATH')
+def releaseKeystorePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+def releaseKeyAlias = System.getenv('ANDROID_KEY_ALIAS')
+def releaseKeyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+
 android {
     namespace 'jp.minax2036.jellybeanmanager'
     compileSdk 35
+
     defaultConfig {
         applicationId 'jp.minax2036.jellybeanmanager'
         minSdk 28
@@ -9,6 +16,30 @@ android {
         versionCode 1
         versionName '0.1.0'
     }
+
+    signingConfigs {
+        release {
+            if (releaseKeystorePath != null && !releaseKeystorePath.isBlank()) {
+                storeFile file(releaseKeystorePath)
+                storePassword releaseKeystorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            // Android Gradle Plugin automatically signs debug builds with its debug key.
+        }
+        release {
+            if (releaseKeystorePath != null && !releaseKeystorePath.isBlank()) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
